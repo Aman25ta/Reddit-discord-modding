@@ -77,7 +77,7 @@ async def insert_hot_posts(listpr):
 
 
 
-async def mod_rising_posts(modid, action, pid):
+async def mod_rising_post(modid, action, pid):
     connection = pool.getconn()
     if connection:
         cursor = connection.cursor()
@@ -91,7 +91,7 @@ async def mod_rising_posts(modid, action, pid):
 
 
 
-async def mod_hot_posts(modid, action, pid):
+async def mod_hot_post(modid, action, pid):
     connection = pool.getconn()
     if connection:
         cursor = connection.cursor()

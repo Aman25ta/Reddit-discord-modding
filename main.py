@@ -6,6 +6,7 @@ from discord_slash.model import ButtonStyle
 import json
 import reddit
 import asyncio
+import db
 
 f= open("config.json","r")
 settings = json.load(f)
@@ -70,20 +71,21 @@ async def check1():
         ).add_field(
             name="Post Title",
             value=i['title']
-        )
+        ).set_thumbnail(url=i['flair_url'])
         if i['url'].endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
             embed.set_image(url=i['url'])
         elif i['is_self']:
             embed.add_field(name="selftext",value=i['selftext'])
 
         await channel1.send(embed=embed,components=[actRow])
+
         await asyncio.sleep(5)
 
     for i in hot:
         embed = discord.Embed(
             title=f"Post by u/{i['username']} has reached hot",
             url=f"https://reddit.com/{i['id']}",
-            color=0xFFFF00
+            color=0x00FF00
         ).add_field(
             name="Hot post",
             value=f"[Post link](https://reddit.com/{i['id']})"
@@ -96,7 +98,7 @@ async def check1():
         ).add_field(
             name="Post Title",
             value=i['title']
-        )
+        ).set_thumbnail(url=i['flair_url'])
         if i['url'].endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
             embed.set_image(url=i['url'])
         elif i['is_self']:
@@ -118,6 +120,10 @@ async def on_component(ctx):
         return
     username = ctx.origin_message.embeds[0].title.split("u/")[-1].split(" ")[0]
     postid = ctx.origin_message.embeds[0].url.split("/")[-1]
+    if ctx.channel_id == settings['rising_channel']:
+        await db.mod_rising_post(ctx.author_id,ctx.component['label'],postid)
+    else:
+        await db.mod_hot_post(ctx.author_id,ctx.component['label'],postid)
     if ctx.custom_id == "approve":
         result = await reddit.approve(postid)
     elif ctx.custom_id == "reject":

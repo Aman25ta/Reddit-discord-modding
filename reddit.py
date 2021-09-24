@@ -95,7 +95,7 @@ async def latest_hot_posts():
         if i.id in posted_hot:
             continue
         else:
-            posted_rising.append(i.id)
+            posted_hot.append(i.id)
             temp_list.append((i.id,i.author.name))
             fu=None
             if not i.link_flair_text and len(i.author_flair_richtext)!=0:
