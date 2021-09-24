@@ -16,7 +16,7 @@ Link will be printed to console (ignore the errors if any)
 Use link in browser *while* Logged in as the bot account, and give access
 It will redirect you to an invalid page, Copy the link on the page
 
-It should look something like: `' https://localhost/?state=...&code=<code\>#_ '`
+It should look something like: `' https://localhost/?state=...&code=<code>#_ '`
 
 Copy down the \<code\> without the `#_`
 
