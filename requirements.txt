@@ -1,0 +1,4 @@
+discord
+asyncpraw
+psycopg2
+discord-py-slash-command

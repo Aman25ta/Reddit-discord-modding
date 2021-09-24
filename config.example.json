@@ -1,0 +1,14 @@
+{
+  "subreddit": "",
+  "token": "",
+  "client_id": "",
+  "client_secret": "",
+  "refresh_token": "" ,
+  "database": {
+    "user": "",
+    "password": "",
+    "host": "",
+    "port": 5432,
+    "database": ""
+  }
+}
