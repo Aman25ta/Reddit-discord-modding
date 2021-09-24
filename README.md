@@ -18,9 +18,9 @@ It will redirect you to an invalid page, Copy the link on the page
 
 It should look something like: `' https://localhost/?state=...&code=<code>#_ '`
 
-Copy down the \<code\> without the `#_`
+Copy down the `<code>` without the `#_`
 
-Re-comment the first line (yes this is important, the token gets invalidated otherwise), and uncomment the second, with your code in \<code\>
+Re-comment the first line (yes this is important, the token gets invalidated otherwise), and uncomment the second, with your code in `<code>`
 
 Place the printed token in the `config.json` with refresh_token as the key.
 
