@@ -78,7 +78,7 @@ async def latest_rising_posts():
                 "selftext": "None" if not i.selftext else i.selftext,
                 "url": i.url,
                 "is_self": i.is_self,
-                "flair_url": fu
+                "flair_url": None if not fu else fu
             })
     await db.insert_rising_posts(temp_list)
     return return_list
@@ -108,7 +108,7 @@ async def latest_hot_posts():
                 "selftext": "None" if not i.selftext else i.selftext,
                 "url": i.url,
                 "is_self": i.is_self,
-                "flair_url": fu
+                "flair_url": None if not fu else fu
             })
     await db.insert_hot_posts(temp_list)
     return return_list
@@ -142,7 +142,7 @@ async def remove(pid):
 
 async def sevendayban(username,modname):
     try:
-        await (await reddit.subreddit(settings.get("subreddit"))).banned.add(username,ban_reason=f"Ban from discord by {modname}")
+        await (await reddit.subreddit(settings.get("subreddit"))).banned.add(username,ban_reason=f"Ban from discord by {modname}",duration=7)
         return True
     except Exception as e:
         return e

@@ -25,7 +25,7 @@ async def on_ready():
     print("bot has started")
 
 
-@tasks.loop(seconds=25*5)
+@tasks.loop(seconds=25*10)
 async def check1():
     rising = await reddit.latest_rising_posts()
     hot = await reddit.latest_hot_posts()
@@ -71,7 +71,9 @@ async def check1():
         ).add_field(
             name="Post Title",
             value=i['title']
-        ).set_thumbnail(url=i['flair_url'])
+        )
+        if i['flair_url']:
+            embed.set_thumbnail(url=i['flair_url'])
         if i['url'].endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
             embed.set_image(url=i['url'])
         elif i['is_self']:
@@ -98,7 +100,9 @@ async def check1():
         ).add_field(
             name="Post Title",
             value=i['title']
-        ).set_thumbnail(url=i['flair_url'])
+        )
+        if i['flair_url']:
+            embed.set_thumbnail(url=i['flair_url'])
         if i['url'].endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
             embed.set_image(url=i['url'])
         elif i['is_self']:
