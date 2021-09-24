@@ -25,7 +25,7 @@ async def on_ready():
     print("bot has started")
 
 
-@tasks.loop(seconds=25*1)
+@tasks.loop(seconds=25*5)
 async def check1():
     rising = await reddit.latest_rising_posts()
     hot = await reddit.latest_hot_posts()
