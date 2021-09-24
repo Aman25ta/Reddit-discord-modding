@@ -4,6 +4,8 @@
   "client_id": "",
   "client_secret": "",
   "refresh_token": "" ,
+  "rising_channel": 0,
+  "hot_channel": 0,
   "database": {
     "user": "",
     "password": "",

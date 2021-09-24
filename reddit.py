@@ -62,22 +62,20 @@ async def latest_rising_posts():
     temp_list = []
     return_list = []
     async for i in sub.rising(limit=100):
-        print(vars(i))
-        return []
         if i.id in posted_rising:
             continue
         else:
             posted_rising.append(i.id)
             temp_list.append((i.id,i.author.name))
             fu=None
-            if not i.link_flair_text:
+            if not i.link_flair_text and len(i.author_flair_richtext)!=0:
                   fu = i.author_flair_richtext[0]['u']
             return_list.append({
                 "username": i.author.name,
-                "postid": i.id,
+                "id": i.id,
                 "score": i.score,
-                "title": i.title,
-                "selftext": i.selftext,
+                "title": "None" if not i.title else i.title,
+                "selftext": "None" if not i.selftext else i.selftext,
                 "url": i.url,
                 "is_self": i.is_self,
                 "flair_url": fu
@@ -100,32 +98,33 @@ async def latest_hot_posts():
             posted_rising.append(i.id)
             temp_list.append((i.id,i.author.name))
             fu=None
-            if not i.link_flair_text:
+            if not i.link_flair_text and len(i.author_flair_richtext)!=0:
                   fu = i.author_flair_richtext[0]['u']
             return_list.append({
                 "username": i.author.name,
-                "postid": i.id,
+                "id": i.id,
                 "score": i.score,
-                "title": i.title,
-                "selftext": i.selftext,
+                "title": "None" if not i.title else i.title,
+                "selftext": "None" if not i.selftext else i.selftext,
                 "url": i.url,
                 "is_self": i.is_self,
                 "flair_url": fu
             })
     await db.insert_hot_posts(temp_list)
-    pass
+    return return_list
 
 
 
 async def approve(pid):
     try:
-        await reddit.submission(id=pid).approve()
+        await (await reddit.submission(id=pid)).mod.approve()
         return True
     except Exception as e:
         return e
 
 async def shadowban(username):
     try:
+        subreddit = await reddit.subreddit(settings.get("subreddit"))
         await subreddit.flair.set(
             redditor=username,
             flair_template_id="63da9b16-80b7-11ea-99ef-0e10a6a106e1"
@@ -136,14 +135,14 @@ async def shadowban(username):
 
 async def remove(pid):
     try:
-        await reddit.submission(id=pid).remove()
+        await (await reddit.submission(id=pid)).mod.remove()
         return True
     except Exception as e:
         return e
 
 async def sevendayban(username,modname):
     try:
-        (await reddit.subreddit(settings.get("subreddit"))).banned.add(username,ban_reason(f"Ban from discord by {modname}"))
+        await (await reddit.subreddit(settings.get("subreddit"))).banned.add(username,ban_reason=f"Ban from discord by {modname}")
         return True
     except Exception as e:
         return e

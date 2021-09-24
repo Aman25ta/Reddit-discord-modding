@@ -5,7 +5,7 @@ from discord_slash.utils.manage_components import create_button, create_actionro
 from discord_slash.model import ButtonStyle
 import json
 import reddit
-
+import asyncio
 
 f= open("config.json","r")
 settings = json.load(f)
@@ -29,6 +29,7 @@ async def check1():
     rising = await reddit.latest_rising_posts()
     hot = await reddit.latest_hot_posts()
     channel1 = bot.get_channel(int(settings['rising_channel']))
+    channel2 = bot.get_channel(int(settings['hot_channel']))
     actRow = create_actionrow(
         create_button(
             style=ButtonStyle.blurple,
@@ -56,7 +57,7 @@ async def check1():
         embed = discord.Embed(
             title=f"Post by u/{i['username']} has reached rising",
             url=f"https://reddit.com/{i['id']}",
-            color=0xFFFF00
+            color=0x00FF00
         ).add_field(
             name="Rising post",
             value=f"[Post link](https://reddit.com/{i['id']})"
@@ -75,7 +76,8 @@ async def check1():
         elif i['is_self']:
             embed.add_field(name="selftext",value=i['selftext'])
 
-        await channel.send(embed=embed,components=[actRow])
+        await channel1.send(embed=embed,components=[actRow])
+        await asyncio.sleep(5)
 
     for i in hot:
         embed = discord.Embed(
@@ -100,7 +102,8 @@ async def check1():
         elif i['is_self']:
             embed.add_field(name="selftext",value=i['selftext'])
 
-        await channel.send(embed=embed,components=[actRow])
+        await channel2.send(embed=embed,components=[actRow])
+        await asyncio.sleep(5)
 
     print("---------")
 
@@ -117,7 +120,7 @@ async def on_component(ctx):
     postid = ctx.origin_message.embeds[0].url.split("/")[-1]
     if ctx.custom_id == "approve":
         result = await reddit.approve(postid)
-    elif ctx.custom_id == "remove":
+    elif ctx.custom_id == "reject":
         result = await reddit.remove(postid)
     elif ctx.custom_id == "shadowban":
         result = await reddit.shadowban(username)
@@ -127,7 +130,7 @@ async def on_component(ctx):
         await ctx.edit_origin(embed=ctx.origin_message.embeds[0].set_footer(text=f"Attended by {ctx.author.name}#{ctx.author.discriminator}"),components=[create_actionrow(
         create_button(
             style=ButtonStyle.green,
-            label = ctx.label,
+            label = ctx.component['label'],
             custom_id=ctx.custom_id,
             disabled=True
         ))])
