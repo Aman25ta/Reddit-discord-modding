@@ -6,6 +6,10 @@
   "refresh_token": "" ,
   "rising_channel": 0,
   "hot_channel": 0,
+  "shadow_channel": 0,
+  "reports_channel": 0,
+  "modlog_channel": 0,
+  "shadow_flair_template_id": "",
   "database": {
     "user": "",
     "password": "",

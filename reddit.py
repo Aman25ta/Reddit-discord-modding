@@ -1,7 +1,7 @@
 import json
 import asyncpraw
 import db
-
+import discord
 
 f= open("config.json","r")
 settings = json.load(f)
@@ -114,6 +114,94 @@ async def latest_hot_posts():
     return return_list
 
 
+async def unmoderated_stream():
+    subreddit = await reddit.subreddit(settings.get("subreddit"))
+    # checks for removed comments+posts and yields embed to send.
+    async for post in subreddit.mod.stream.spam(skip_existing=True):
+        if post.author_flair_template_id:
+            if post.author_flair_template_id == settings['shadow_flair_template_id']:
+                if type(post) == asyncpraw.models.Submission:
+                    url = post.url
+                    if url.endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
+                        embed = discord.Embed(
+                            title=post.title,
+                            description= f"New post by u/{post.author.name}",
+                            url=f"https://reddit.com/{post.id}/"
+                        ).set_image(url=url)
+                    elif post.is_self:
+                        embed = discord.Embed(
+                            title=post.title,
+                            url=f"https://reddit.com/{post.id}/",
+                            description= f"New post by u/{post.author.name}\n\n{post.selftext}"
+                        )
+                    else:
+                        embed = discord.Embed(
+                            title=post.title,
+                            description= f"New post by u/{post.author.name}",
+                            url=f"https://reddit.com/{post.id}/"
+                        )
+                    yield [embed,'p']
+                elif type(post) == asyncpraw.models.Comment:
+                    embed = discord.Embed(title=f"New comment by u/{post.author.name}",url=f"https://reddit.com/{post.id}/",description=post.body)
+                    yield [embed,'c']
+
+
+
+
+async def modlog_stream():
+    subreddit = await reddit.subreddit(settings.get("subreddit"))
+    async for modlog in subreddit.mod.stream.log(skip_existing=True):
+        if modlog.action.lower() == "distinguish":
+            embed = discord.Embed(
+                title=f"u/{modlog.mod} {'un-distinguished' if modlog.details == 'remove' else 'distinguished'} u/{modlog.target_author}\'s {'comment' if not modlog.target_title else 'post'}",
+                url="https://reddit.com"+modlog.target_permalink,
+                description=modlog.target_body if modlog.target_body else 'No body'
+            )
+            yield embed
+        elif modlog.action.replace("_","").replace(" ","").lower() == "modawardgiven":
+            embed = discord.Embed(
+                title=f"u/{modlog.mod} Gave a mod award to u/{modlog.target_author}\'s {'comment' if not modlog.target_title else 'post'}",
+                url="https://reddit.com"+modlog.target_permalink,
+                description=modlog.target_body if modlog.target_body else 'No body'
+            )
+            yield embed
+
+async def report_stream():
+    subreddit = await reddit.subreddit(settings.get("subreddit"))
+    # checks for removed comments+posts and yields embed to send.
+    async for post in subreddit.mod.stream.reports(skip_existing=True):
+        report = ""
+        for i in post.user_reports:
+            report = report + str(i[1]) + " - " + i[0] + "\n"
+        if len(report) > 3500:
+            report = report[0:3500] + "..."
+        if type(post) == asyncpraw.models.Submission:
+            url = post.url
+            if url.endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
+                embed = discord.Embed(
+                    title=post.title,
+                    description= f"New post by u/{post.author.name}",
+                    url=f"https://reddit.com/{post.id}/"
+                ).set_image(url=url)
+            elif post.is_self:
+                embed = discord.Embed(
+                    title=post.title,
+                    url=f"https://reddit.com/{post.id}/",
+                    description= f"New post by u/{post.author.name}\n\n{post.selftext}"
+                )
+            else:
+                embed = discord.Embed(
+                    title=post.title,
+                    description= f"New post by u/{post.author.name}",
+                    url=f"https://reddit.com/{post.id}/"
+                )
+            yield [embed.add_field(name="Reports",value=report),'p']
+        elif type(post) == asyncpraw.models.Comment:
+            embed = discord.Embed(title=f"New comment by u/{post.author.name}",url=f"https://reddit.com/{post.id}/",description=post.body)
+            yield [embed.add_field(name="Reports",value=report),'c']
+
+
+
 
 async def approve(pid):
     try:
@@ -127,11 +215,24 @@ async def shadowban(username):
         subreddit = await reddit.subreddit(settings.get("subreddit"))
         await subreddit.flair.set(
             redditor=username,
-            flair_template_id="63da9b16-80b7-11ea-99ef-0e10a6a106e1"
+            flair_template_id=settings['shadow_flair_template_id']
         )
         return True
     except Exception as e:
         return e
+
+
+async def unshadowban(username):
+    try:
+        subreddit = await reddit.subreddit(settings.get("subreddit"))
+        await subreddit.flair.delete(
+            redditor=username
+        )
+        return True
+    except Exception as e:
+        return e
+
+
 
 async def remove(pid):
     try:
@@ -147,4 +248,17 @@ async def sevendayban(username,modname):
     except Exception as e:
         return e
 
+async def capprove(pid):
+    try:
+        await (await reddit.comment(id=pid)).mod.approve()
+        return True
+    except Exception as e:
+        return e
+
+async def cremove(pid):
+    try:
+        await (await reddit.comment(id=pid)).mod.remove()
+        return True
+    except Exception as e:
+        return e
 
