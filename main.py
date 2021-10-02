@@ -269,6 +269,22 @@ async def on_component(ctx):
     elif ctx.custom_id == "rshadowban":
         result = await reddit.unshadowban(username)
     if result == True:
+        if int(settings['mod_action_logs_channel']) !=0:
+            msgd={
+                'approve': 'Post approval',
+                'reject': 'Post removal',
+                'capprove': 'Comment approval',
+                'creject': 'Comment removal',
+                'shadowban': 'Shadowban',
+                '7day': '7 day ban',
+                'rshadowban': 'Shadowban removal'
+            }
+            logs = bot.get_channel(int(settings['mod_action_logs_channel']))
+            await logs.send(embed=discord.Embed(
+                title=f"Action by {ctx.author.name}#{ctx.author.discriminator}",
+                url=ctx.origin_message.jump_url,
+                description=f"{msgd.get(ctx.custom_id)} for u/{username} in [this post](https://reddit.com/{postid})"
+            ))
         await ctx.edit_origin(embed=ctx.origin_message.embeds[0].set_footer(text=f"Attended by {ctx.author.name}#{ctx.author.discriminator}"),components=[create_actionrow(
         create_button(
             style=ButtonStyle.green,
@@ -276,6 +292,7 @@ async def on_component(ctx):
             custom_id=ctx.custom_id,
             disabled=True
         ))])
+
     else:
         await ctx.send(f"Action failed. Error: {result}",hidden=True)
 

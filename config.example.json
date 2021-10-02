@@ -10,6 +10,7 @@
   "reports_channel": 0,
   "modlog_channel": 0,
   "shadow_flair_template_id": "",
+  "mod_action_logs_channel": 0,
   "database": {
     "user": "",
     "password": "",
