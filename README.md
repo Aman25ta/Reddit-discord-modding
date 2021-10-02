@@ -3,9 +3,13 @@
 Bot to send rising and Hot posts to discord channels to perform mod actions on.
 
 # Setup
-Install packages in `requirements.txt`
-Fill `config.json`
 
+Install packages in `requirements.txt`
+Fill `config.example.json` as `config.json`
+`modlog_channel` in `config.json` is for mod award logs and distinguish logs
+`mod_action_logs_channel` is logs for actions performed through the bot
+ 
+ 
 # Refresh token in config.json
 
 How to get the refresh_token for `config.json` (bot will not work otherwise)
@@ -27,5 +31,4 @@ Place the printed token in the `config.json` with refresh_token as the key.
 Re-run the app, and comment out the second line too.
 
 The app should now be working as intended
-
 
