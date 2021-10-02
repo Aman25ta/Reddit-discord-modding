@@ -5,8 +5,11 @@ Bot to send rising and Hot posts to discord channels to perform mod actions on.
 # Setup
 
 Install packages in `requirements.txt`
+
 Fill `config.example.json` as `config.json`
+
 `modlog_channel` in `config.json` is for mod award logs and distinguish logs
+
 `mod_action_logs_channel` is logs for actions performed through the bot
  
  
@@ -15,6 +18,7 @@ Fill `config.example.json` as `config.json`
 How to get the refresh_token for `config.json` (bot will not work otherwise)
 
 Uncomment first line (with reddit auth url), and run
+
 Link will be printed to console (ignore the errors if any)
 
 Use link in browser *while* Logged in as the bot account, and give access
