@@ -1,0 +1,13 @@
+RemoteControI
+pdpsbooster2
+pdpsbooster
+SimpScraper
+MayaThePugBot
+RepostMasterBot
+RepostSleuthBot
+MAGIC_EYE_BOT
+BotDefense
+Flair_Helper
+PhlogistonAster
+MuseumBot
+Automoderator

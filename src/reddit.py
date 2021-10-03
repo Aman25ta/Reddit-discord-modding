@@ -7,7 +7,10 @@ f= open("config.json","r")
 settings = json.load(f)
 f.close()
 
-
+f = open("botlist.txt","r")
+botlist = f.read().split("\n")
+print(botlist)
+f.close()
 
 
 reddit = asyncpraw.Reddit(
@@ -152,12 +155,13 @@ async def modlog_stream():
     subreddit = await reddit.subreddit(settings.get("subreddit"))
     async for modlog in subreddit.mod.stream.log(skip_existing=True):
         if modlog.action.lower() == "distinguish":
-            embed = discord.Embed(
-                title=f"u/{modlog.mod} {'un-distinguished' if modlog.details == 'remove' else 'distinguished'} u/{modlog.target_author}\'s {'comment' if not modlog.target_title else 'post'}",
-                url="https://reddit.com"+modlog.target_permalink,
-                description=modlog.target_body if modlog.target_body else 'No body'
-            )
-            yield embed
+            if modlog.mod not in botlist:
+                embed = discord.Embed(
+                    title=f"u/{modlog.mod} {'un-distinguished' if modlog.details == 'remove' else 'distinguished'} u/{modlog.target_author}\'s {'comment' if not modlog.target_title else 'post'}",
+                    url="https://reddit.com"+modlog.target_permalink,
+                    description=modlog.target_body if modlog.target_body else 'No body'
+                )
+                yield embed
         elif modlog.action.replace("_","").replace(" ","").lower() == "modawardgiven":
             embed = discord.Embed(
                 title=f"u/{modlog.mod} Gave a mod award to u/{modlog.target_author}\'s {'comment' if not modlog.target_title else 'post'}",
