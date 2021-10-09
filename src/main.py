@@ -20,14 +20,16 @@ slash = SlashCommand(bot,sync_commands=True)
 
 @bot.event
 async def on_ready():
-    await reddit.get_link()
-    check1.start()
-    if int(settings['shadow_channel']) != 0:
-        check2.start()
-    if int(settings['reports_channel']) != 0:
-        check3.start()
-    if int(settings['modlog_channel']) != 0:
-        check4.start()
+    if not settings.get("refresh_token",None):
+        await reddit.get_link()
+    else:
+        check1.start()
+        if int(settings['shadow_channel']) != 0:
+            check2.start()
+        if int(settings['reports_channel']) != 0:
+            check3.start()
+        if int(settings['modlog_channel']) != 0:
+            check4.start()
     print("bot has started")
 
 

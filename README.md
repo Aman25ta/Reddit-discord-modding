@@ -18,22 +18,10 @@ Run using `python3 main.py`
 
 How to get the refresh_token for `config.json` (bot will not work otherwise)
 
-Uncomment first line (with reddit auth url), and run
+Run bot
 
-Link will be printed to console (ignore the errors if any)
+Authorize given link in console while logged into bot account
 
-Use link in browser *while* Logged in as the bot account, and give access
+Copy the url from the redirect (will be an invalid page), and paste it into the prompt in console.
 
-It will redirect you to an invalid page, Copy the link on the page
-
-It should look something like: `' https://localhost/?state=...&code=<code>#_ '`
-
-Copy down the `<code>` without the `#_`
-
-Re-comment the first line (yes this is important, the token gets invalidated otherwise), and uncomment the second, with your code in `<code>`
-
-Place the printed token in the `config.json` with refresh_token as the key.
-
-Re-run the app, and comment out the second line too.
-
-The app should now be working as intended
+Bot should work as intended.

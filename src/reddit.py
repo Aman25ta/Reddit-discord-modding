@@ -1,4 +1,4 @@
-import json
+import json,os,sys
 import asyncpraw
 import db
 import discord
@@ -9,48 +9,42 @@ f.close()
 
 f = open("botlist.txt","r")
 botlist = f.read().split("\n")
-print(botlist)
 f.close()
 
-
-reddit = asyncpraw.Reddit(
-    client_id=settings.get("client_id"),
-    client_secret=settings.get("client_secret"),
-    user_agent="pewdiepie subreddit bot test by u/Aman25ta",
-    refresh_token=settings.get("refresh_token"),
-    redirect_uri="https://localhost/"
-)
-
-
+if settings.get("refresh_token",None):
+    reddit = asyncpraw.Reddit(
+        client_id=settings.get("client_id"),
+        client_secret=settings.get("client_secret"),
+        user_agent="Mod bot test by u/Aman25ta",
+        refresh_token=settings.get("refresh_token"),
+        redirect_uri="https://localhost/"
+    )
+else:
+    reddit = asyncpraw.Reddit(
+        client_id=settings.get("client_id"),
+        client_secret=settings.get("client_secret"),
+        user_agent="Mod bot test by u/Aman25ta",
+        redirect_uri="https://localhost/"
+    )
 
 
 async def get_link():
     """
-    
-    How to get the refresh_token for config.json (bot will not work otherwise)
-
-    Uncomment first line (with reddit auth url), and run
-    Link will be printed to console (ignore the errors if any)
-
-    Use link in browser *while* Logged in as the bot account, and give access
-    It will redirect you to an invalid page, Copy the link on the page
-
-    It should look something like: ' https://localhost/?state=...&code=<code>#_ ' 
-
-    Copy down the <code> without #_
-
-    Re-comment the first line (yes this is important, the token gets invalidated otherwise), and uncomment the second, with your code in <code>
-
-    Place the printed token in the config.json with refresh_token as the key.
-
-    Re-run the app, and comment out the second line too.
-
-    The app should now be working as intended
-
+    Check README.md
 
     """
-    # print(reddit.auth.url(["*"], "...", "permanent"))
-    # print(await reddit.auth.authorize('<code>'))
+    if not settings.get("refresh_token",None):
+        print(reddit.auth.url(["*"], "...", "permanent"))
+        url = input("Enter url after authorization: ")
+
+        ref_token=await reddit.auth.authorize(url.split("...&code=")[-1].strip("#_"))
+
+        with open('config.json','r') as cfg:
+            data=json.load(cfg)
+        data['refresh_token']=ref_token
+        with open('config.json','w') as cfg:
+            data=json.dump(data,cfg,indent=2)
+        os.execv(sys.executable,['python']+sys.argv)
     pass
 
 global posted_hot,posted_rising
