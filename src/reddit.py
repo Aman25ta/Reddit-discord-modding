@@ -47,26 +47,21 @@ async def get_link():
         os.execv(sys.executable,['python']+sys.argv)
     pass
 
-global posted_hot,posted_rising
-posted_hot,posted_rising = [],[]
 
 
 async def latest_rising_posts():
     sub = await reddit.subreddit(settings.get("subreddit"))
-    global posted_rising
-    if len(posted_rising)==0:
-        posted_rising = await db.get_rising_posted()
+    posted_rising = await db.get_rising_posted()
     temp_list = []
     return_list = []
     async for i in sub.rising(limit=100):
         if i.id in posted_rising:
             continue
         else:
-            posted_rising.append(i.id)
-            temp_list.append((i.id,i.author.name))
+            await db.insert_rising_post((i.id,i.author.name))
             fu=None
             if not i.link_flair_text and len(i.author_flair_richtext)!=0:
-                  fu = i.author_flair_richtext[0]['u']
+                  fu = i.author_flair_richtext[0].get('u',None)
             return_list.append({
                 "username": i.author.name,
                 "id": i.id,
@@ -77,26 +72,22 @@ async def latest_rising_posts():
                 "is_self": i.is_self,
                 "flair_url": None if not fu else fu
             })
-    await db.insert_rising_posts(temp_list)
     return return_list
 
 
 async def latest_hot_posts():
     sub = await reddit.subreddit(settings.get("subreddit"))
-    global posted_hot
-    if len(posted_hot)==0:
-        posted_hot = await db.get_hot_posted()
+    posted_hot = await db.get_hot_posted()
     temp_list = []
     return_list = []
     async for i in sub.hot(limit=100):
         if i.id in posted_hot:
             continue
         else:
-            posted_hot.append(i.id)
-            temp_list.append((i.id,i.author.name))
+            await db.insert_hot_post((i.id,i.author.name))
             fu=None
             if not i.link_flair_text and len(i.author_flair_richtext)!=0:
-                  fu = i.author_flair_richtext[0]['u']
+                  fu = i.author_flair_richtext[0].get('u',None)
             return_list.append({
                 "username": i.author.name,
                 "id": i.id,
@@ -107,7 +98,6 @@ async def latest_hot_posts():
                 "is_self": i.is_self,
                 "flair_url": None if not fu else fu
             })
-    await db.insert_hot_posts(temp_list)
     return return_list
 
 
@@ -121,20 +111,20 @@ async def unmoderated_stream():
                     url = post.url
                     if url.endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
                         embed = discord.Embed(
-                            title=post.title,
-                            description= f"New post by u/{post.author.name}",
+                            description=post.title,
+                            title= f"New post by u/{post.author.name}",
                             url=f"https://reddit.com/{post.id}/"
                         ).set_image(url=url)
                     elif post.is_self:
                         embed = discord.Embed(
-                            title=post.title,
+                            description=post.title,
                             url=f"https://reddit.com/{post.id}/",
-                            description= f"New post by u/{post.author.name}\n\n{post.selftext}"
+                            title= f"New post by u/{post.author.name}\n\n{post.selftext}"
                         )
                     else:
                         embed = discord.Embed(
-                            title=post.title,
-                            description= f"New post by u/{post.author.name}",
+                            description=post.title,
+                            title= f"New post by u/{post.author.name}",
                             url=f"https://reddit.com/{post.id}/"
                         )
                     yield [embed,'p']
@@ -177,20 +167,20 @@ async def report_stream():
             url = post.url
             if url.endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
                 embed = discord.Embed(
-                    title=post.title,
-                    description= f"New post by u/{post.author.name}",
+                    description=post.title,
+                    title= f"New post by u/{post.author.name}",
                     url=f"https://reddit.com/{post.id}/"
                 ).set_image(url=url)
             elif post.is_self:
                 embed = discord.Embed(
-                    title=post.title,
+                    description=post.title,
                     url=f"https://reddit.com/{post.id}/",
-                    description= f"New post by u/{post.author.name}\n\n{post.selftext}"
+                    title= f"New post by u/{post.author.name}\n\n{post.selftext}"
                 )
             else:
                 embed = discord.Embed(
-                    title=post.title,
-                    description= f"New post by u/{post.author.name}",
+                    description=post.title,
+                    title= f"New post by u/{post.author.name}",
                     url=f"https://reddit.com/{post.id}/"
                 )
             yield [embed.add_field(name="Reports",value=report),'p']

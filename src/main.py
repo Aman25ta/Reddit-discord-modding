@@ -43,7 +43,7 @@ async def check1():
         ),
         create_button(
             style=ButtonStyle.blurple,
-            label = "Reject",
+            label = "Remove",
             custom_id="reject",
         ),
         create_button(
@@ -136,7 +136,7 @@ async def check2():
         ),
         create_button(
             style=ButtonStyle.blurple,
-            label = "Reject",
+            label = "Remove",
             custom_id="reject",
         ),
         create_button(
@@ -158,7 +158,7 @@ async def check2():
         ),
         create_button(
             style=ButtonStyle.blurple,
-            label = "Reject",
+            label = "Remove",
             custom_id="creject",
         ),
         create_button(
@@ -190,7 +190,7 @@ async def check3():
         ),
         create_button(
             style=ButtonStyle.blurple,
-            label = "Reject",
+            label = "Remove",
             custom_id="reject",
         ),
         create_button(
@@ -212,7 +212,7 @@ async def check3():
         ),
         create_button(
             style=ButtonStyle.blurple,
-            label = "Reject",
+            label = "Remove",
             custom_id="creject",
         ),
         create_button(
@@ -250,6 +250,7 @@ async def check4():
 async def on_component(ctx):
     if ctx.origin_message.author.id != bot.user.id:
         return
+    await ctx.defer(ignore=True)
     username = ctx.origin_message.embeds[0].title.split("u/")[-1].split(" ")[0]
     postid = ctx.origin_message.embeds[0].url.strip("/").split("/")[-1]
     if ctx.channel_id == settings['rising_channel']:
@@ -273,28 +274,22 @@ async def on_component(ctx):
     if result == True:
         if int(settings['mod_action_logs_channel']) !=0:
             msgd={
-                'approve': 'Post approval',
-                'reject': 'Post removal',
-                'capprove': 'Comment approval',
-                'creject': 'Comment removal',
-                'shadowban': 'Shadowban',
-                '7day': '7 day ban',
-                'rshadowban': 'Shadowban removal'
+                'approve': ['Post approval',0x00FF00],
+                'reject': ['Post removal',0xFF0000],
+                'capprove': ['Comment approval',0x00FF00],
+                'creject': ['Comment removal',0xFF0000],
+                'shadowban': ['Shadowban',0x808080],
+                '7day': ['7 day ban',0xcb4154],
+                'rshadowban': ['Shadowban removal',0x00FF00]
             }
             logs = bot.get_channel(int(settings['mod_action_logs_channel']))
             await logs.send(embed=discord.Embed(
                 title=f"Action by {ctx.author.name}#{ctx.author.discriminator}",
                 url=ctx.origin_message.jump_url,
-                description=f"{msgd.get(ctx.custom_id)} for u/{username} in [this post](https://reddit.com/{postid})"
+                description=f"{msgd.get(ctx.custom_id)[0]} for u/{username} in [this post](https://reddit.com/{postid})",
+                color = msgd.get(ctx.custom_id)[1]
             ))
-        await ctx.edit_origin(embed=ctx.origin_message.embeds[0].set_footer(text=f"Attended by {ctx.author.name}#{ctx.author.discriminator}"),components=[create_actionrow(
-        create_button(
-            style=ButtonStyle.green,
-            label = ctx.component['label'],
-            custom_id=ctx.custom_id,
-            disabled=True
-        ))])
-
+        await ctx.origin_message.delete()
     else:
         await ctx.send(f"Action failed. Error: {result}",hidden=True)
 

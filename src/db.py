@@ -46,13 +46,11 @@ async def get_hot_posted():
         print("Cant connect")
         raise "ConnectionError"
 
-
-
-async def insert_rising_posts(listpr):
+async def insert_rising_post(listpr):
     connection = pool.getconn()
     if connection:
         cursor = connection.cursor()
-        execute_batch(cursor,"INSERT INTO reddit_posted.rising(postid, reddit_username) VALUES(%s,%s)",listpr)
+        cursor.execute("INSERT INTO reddit_posted.rising(postid, reddit_username) VALUES(%s,%s)",listpr)
         connection.commit()
         cursor.close()
         pool.putconn(connection)
@@ -63,19 +61,17 @@ async def insert_rising_posts(listpr):
 
 
 
-async def insert_hot_posts(listpr):
+async def insert_hot_post(listpr):
     connection = pool.getconn()
     if connection:
         cursor = connection.cursor()
-        execute_batch(cursor,"INSERT INTO reddit_posted.hot(postid, reddit_username) VALUES(%s,%s)",listpr)
+        cursor.execute("INSERT INTO reddit_posted.hot(postid, reddit_username) VALUES(%s,%s)",listpr)
         connection.commit()
         cursor.close()
         pool.putconn(connection)
     else:
         print("Cant connect")
         raise "ConnectionError"
-
-
 
 async def mod_rising_post(modid, action, pid):
     connection = pool.getconn()
