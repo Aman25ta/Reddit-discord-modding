@@ -182,28 +182,6 @@ async def check2():
 @tasks.loop()
 async def check3():
     channel = bot.get_channel(int(settings['reports_channel']))
-    actRow = create_actionrow(
-        create_button(
-            style=ButtonStyle.blurple,
-            label = "Approve",
-            custom_id="approve",
-        ),
-        create_button(
-            style=ButtonStyle.blurple,
-            label = "Remove",
-            custom_id="reject",
-        ),
-        create_button(
-            style=ButtonStyle.blurple,
-            label = "Shadowban",
-            custom_id="shadowban",
-        ),
-        create_button(
-            style=ButtonStyle.blurple,
-            label = "7 day ban",
-            custom_id="7day",
-        )
-    )
     actRow2 = create_actionrow(
         create_button(
             style=ButtonStyle.blurple,
@@ -227,9 +205,7 @@ async def check3():
         )
     )
     async for post in reddit.report_stream():
-        if post[1] == "p":
-            await channel.send(embed=post[0],components=[actRow])
-        elif post[1] == "c":
+        if post[1] == "c":
             await channel.send(embed=post[0],components=[actRow2])
 
 

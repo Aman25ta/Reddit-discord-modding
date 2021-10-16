@@ -128,7 +128,7 @@ async def unmoderated_stream():
                             url=f"https://reddit.com/{post.id}/"
                         )
                     yield [embed,'p']
-                elif type(post) == asyncpraw.models.Comment:
+                if type(post) == asyncpraw.models.Comment:
                     embed = discord.Embed(title=f"New comment by u/{post.author.name}",url=f"https://reddit.com/{post.id}/",description=post.body)
                     yield [embed,'c']
 
@@ -163,28 +163,7 @@ async def report_stream():
             report = report + str(i[1]) + " - " + i[0] + "\n"
         if len(report) > 3500:
             report = report[0:3500] + "..."
-        if type(post) == asyncpraw.models.Submission:
-            url = post.url
-            if url.endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
-                embed = discord.Embed(
-                    description=post.title,
-                    title= f"New post by u/{post.author.name}",
-                    url=f"https://reddit.com/{post.id}/"
-                ).set_image(url=url)
-            elif post.is_self:
-                embed = discord.Embed(
-                    description=post.title,
-                    url=f"https://reddit.com/{post.id}/",
-                    title= f"New post by u/{post.author.name}\n\n{post.selftext}"
-                )
-            else:
-                embed = discord.Embed(
-                    description=post.title,
-                    title= f"New post by u/{post.author.name}",
-                    url=f"https://reddit.com/{post.id}/"
-                )
-            yield [embed.add_field(name="Reports",value=report),'p']
-        elif type(post) == asyncpraw.models.Comment:
+        if type(post) == asyncpraw.models.Comment:
             embed = discord.Embed(title=f"New comment by u/{post.author.name}",url=f"https://reddit.com/{post.id}/",description=post.body)
             yield [embed.add_field(name="Reports",value=report),'c']
 
