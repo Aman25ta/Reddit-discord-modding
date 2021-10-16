@@ -262,7 +262,7 @@ async def on_component(ctx):
             await logs.send(embed=discord.Embed(
                 title=f"Action by {ctx.author.name}#{ctx.author.discriminator}",
                 url=ctx.origin_message.jump_url,
-                description=f"{msgd.get(ctx.custom_id)[0]} for u/{username} in [this post](https://reddit.com/{postid})",
+                description=f"{msgd.get(ctx.custom_id)[0]} for u/{username} in [this post]({ctx.origin_message.embeds[0].url})",
                 color = msgd.get(ctx.custom_id)[1]
             ))
         await ctx.origin_message.delete()

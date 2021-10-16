@@ -129,7 +129,7 @@ async def unmoderated_stream():
                         )
                     yield [embed,'p']
                 if type(post) == asyncpraw.models.Comment:
-                    embed = discord.Embed(title=f"New comment by u/{post.author.name}",url=f"https://reddit.com/{post.id}/",description=post.body)
+                    embed = discord.Embed(title=f"New comment by u/{post.author.name}",url="https://reddit.com"+post.permalink,description=post.body)
                     yield [embed,'c']
 
 
@@ -164,7 +164,7 @@ async def report_stream():
         if len(report) > 3500:
             report = report[0:3500] + "..."
         if type(post) == asyncpraw.models.Comment:
-            embed = discord.Embed(title=f"New comment by u/{post.author.name}",url=f"https://reddit.com/{post.id}/",description=post.body)
+            embed = discord.Embed(title=f"New comment by u/{post.author.name}",url="https://reddit.com"+post.permalink,description=post.body)
             yield [embed.add_field(name="Reports",value=report),'c']
 
 
