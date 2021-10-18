@@ -164,12 +164,12 @@ async def check2():
         create_button(
             style=ButtonStyle.blurple,
             label = "Remove shadowban",
-            custom_id="rshadowban",
+            custom_id="crshadowban",
         ),
         create_button(
             style=ButtonStyle.blurple,
             label = "7 day ban",
-            custom_id="7day",
+            custom_id="c7day",
         )
     )
     async for post in reddit.unmoderated_stream():
@@ -196,12 +196,12 @@ async def check3():
         create_button(
             style=ButtonStyle.blurple,
             label = "Shadowban",
-            custom_id="shadowban",
+            custom_id="cshadowban",
         ),
         create_button(
             style=ButtonStyle.blurple,
             label = "7 day ban",
-            custom_id="7day",
+            custom_id="c7day",
         )
     )
     async for post in reddit.report_stream():
@@ -241,12 +241,30 @@ async def on_component(ctx):
         result = await reddit.capprove(postid)
     elif ctx.custom_id == "creject":
         result = await reddit.cremove(postid)
+    elif ctx.custom_id == "cshadowban":
+        result = await reddit.shadowban(username)
+        if result == True:
+            result = await reddit.cremove(postid)
+    elif ctx.custom_id == "c7day":
+        result = await reddit.sevendayban(username,f"{ctx.author.name}#{ctx.author.discriminator}")
+        if result == True:
+            result = await reddit.cremove(postid)
     elif ctx.custom_id == "shadowban":
         result = await reddit.shadowban(username)
+        if result == True:
+            result = await reddit.remove(postid)
     elif ctx.custom_id == "7day":
         result = await reddit.sevendayban(username,f"{ctx.author.name}#{ctx.author.discriminator}")
+        if result == True:
+            result = await reddit.remove(postid)
     elif ctx.custom_id == "rshadowban":
         result = await reddit.unshadowban(username)
+        if result == True:
+            result = await reddit.approve(postid)
+    elif ctx.custom_id == "crshadowban":
+        result = await reddit.unshadowban(username)
+        if result == True:
+            result = await reddit.capprove(postid)
     if result == True:
         if int(settings['mod_action_logs_channel']) !=0:
             msgd={
@@ -256,6 +274,9 @@ async def on_component(ctx):
                 'creject': ['Comment removal',0xFF0000],
                 'shadowban': ['Shadowban',0x808080],
                 '7day': ['7 day ban',0xcb4154],
+                'cshadowban': ['Shadowban',0x808080],
+                'c7day': ['7 day ban',0xcb4154],
+                'crshadowban': ['Shadowban removal',0x00FF00],
                 'rshadowban': ['Shadowban removal',0x00FF00]
             }
             logs = bot.get_channel(int(settings['mod_action_logs_channel']))

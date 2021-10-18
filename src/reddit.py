@@ -11,21 +11,15 @@ f = open("botlist.txt","r")
 botlist = f.read().split("\n")
 f.close()
 
-if settings.get("refresh_token",None):
-    reddit = asyncpraw.Reddit(
-        client_id=settings.get("client_id"),
-        client_secret=settings.get("client_secret"),
-        user_agent="Mod bot test by u/Aman25ta",
-        refresh_token=settings.get("refresh_token"),
-        redirect_uri="https://localhost/"
-    )
-else:
-    reddit = asyncpraw.Reddit(
-        client_id=settings.get("client_id"),
-        client_secret=settings.get("client_secret"),
-        user_agent="Mod bot test by u/Aman25ta",
-        redirect_uri="https://localhost/"
-    )
+token = settings.get("refresh_token",None)
+reddit = asyncpraw.Reddit(
+    client_id=settings.get("client_id"),
+    client_secret=settings.get("client_secret"),
+    user_agent="Mod bot test by u/Aman25ta",
+    refresh_token=token,
+    redirect_uri="https://localhost/"
+)
+
 
 
 async def get_link():
@@ -45,7 +39,6 @@ async def get_link():
         with open('config.json','w') as cfg:
             data=json.dump(data,cfg,indent=2)
         os.execv(sys.executable,['python']+sys.argv)
-    pass
 
 
 
@@ -54,10 +47,10 @@ async def latest_rising_posts():
     posted_rising = await db.get_rising_posted()
     temp_list = []
     return_list = []
-    async for i in sub.rising(limit=100):
+    async for i in sub.rising(limit=50):
         if i.id in posted_rising:
             continue
-        else:
+        elif i.score >= 400:
             await db.insert_rising_post((i.id,i.author.name))
             fu=None
             if not i.link_flair_text and len(i.author_flair_richtext)!=0:
@@ -80,7 +73,7 @@ async def latest_hot_posts():
     posted_hot = await db.get_hot_posted()
     temp_list = []
     return_list = []
-    async for i in sub.hot(limit=100):
+    async for i in sub.hot(limit=25):
         if i.id in posted_hot:
             continue
         else:
@@ -103,34 +96,32 @@ async def latest_hot_posts():
 
 async def unmoderated_stream():
     subreddit = await reddit.subreddit(settings.get("subreddit"))
-    # checks for removed comments+posts and yields embed to send.
     async for post in subreddit.mod.stream.spam(skip_existing=True):
-        if post.author_flair_template_id:
-            if post.author_flair_template_id == settings['shadow_flair_template_id']:
-                if type(post) == asyncpraw.models.Submission:
-                    url = post.url
-                    if url.endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
-                        embed = discord.Embed(
-                            description=post.title,
-                            title= f"New post by u/{post.author.name}",
-                            url=f"https://reddit.com/{post.id}/"
-                        ).set_image(url=url)
-                    elif post.is_self:
-                        embed = discord.Embed(
-                            description=post.title,
-                            url=f"https://reddit.com/{post.id}/",
-                            title= f"New post by u/{post.author.name}\n\n{post.selftext}"
-                        )
-                    else:
-                        embed = discord.Embed(
-                            description=post.title,
-                            title= f"New post by u/{post.author.name}",
-                            url=f"https://reddit.com/{post.id}/"
-                        )
-                    yield [embed,'p']
-                if type(post) == asyncpraw.models.Comment:
-                    embed = discord.Embed(title=f"New comment by u/{post.author.name}",url="https://reddit.com"+post.permalink,description=post.body)
-                    yield [embed,'c']
+        if post.author_flair_css_class == "f":
+            if type(post) == asyncpraw.models.Submission:
+                url = post.url
+                if url.endswith(('.jpg', '.png', '.gif', '.jpeg', '.gifv', '.svg')):   
+                    embed = discord.Embed(
+                        description=post.title,
+                        title= f"New post by u/{post.author.name}",
+                        url=f"https://reddit.com/{post.id}/"
+                    ).set_image(url=url)
+                elif post.is_self:
+                    embed = discord.Embed(
+                        description=post.title,
+                        url=f"https://reddit.com/{post.id}/",
+                        title= f"New post by u/{post.author.name}\n\n{post.selftext}"
+                    )
+                else:
+                    embed = discord.Embed(
+                        description=post.title,
+                        title= f"New post by u/{post.author.name}",
+                        url=f"https://reddit.com/{post.id}/"
+                    )
+                yield [embed,'p']
+            if type(post) == asyncpraw.models.Comment:
+                embed = discord.Embed(title=f"New comment by u/{post.author.name}",url="https://reddit.com"+post.permalink,description=post.body)
+                yield [embed,'c']
 
 
 
@@ -182,7 +173,7 @@ async def shadowban(username):
         subreddit = await reddit.subreddit(settings.get("subreddit"))
         await subreddit.flair.set(
             redditor=username,
-            flair_template_id=settings['shadow_flair_template_id']
+            css_class="f"
         )
         return True
     except Exception as e:

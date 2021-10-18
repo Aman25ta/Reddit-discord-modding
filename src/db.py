@@ -1,6 +1,5 @@
 from psycopg2 import pool
 import json
-from psycopg2.extras import execute_batch
 
 
 f= open("config.json","r")
