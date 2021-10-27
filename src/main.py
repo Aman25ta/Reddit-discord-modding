@@ -7,6 +7,7 @@ import json
 import reddit
 import asyncio
 import db
+import os,sys,aiohttp
 
 f= open("config.json","r")
 settings = json.load(f)
@@ -209,6 +210,10 @@ async def check3():
             await channel.send(embed=post[0],components=[actRow2])
 
 
+@bot.command(aliases=['r'])
+async def restart(ctx):
+    await ctx.reply("Restarting...")
+    os.execv(sys.executable, ['python'] + sys.argv)
 
 
 @tasks.loop()
@@ -218,6 +223,24 @@ async def check4():
         await channel.send(embed=post)
 
 
+
+@bot.event
+async def on_command_error(ctx,error):
+    if isinstance(error, commands.MissingRequiredArgument):
+         await ctx.send('Please input all required arguments.', delete_after=25)
+    elif isinstance(error, commands.CommandNotFound):
+        return 
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.send(f'You are missing permissions to run this command. `{error}`', delete_after=25)
+    elif isinstance(error, commands.MemberNotFound):
+        await ctx.send("Invalid user!")
+    elif isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(f'You\'re on {str(error.cooldown.type).split(".")[-1]} cooldown for this command. Try again in {round(error.retry_after)} seconds.')
+    elif isinstance(error, aiohttp.client_exceptions.ClientOSError):
+        os.execv(sys.executable, ['python'] + sys.argv)
+    else:
+        channel = client.get_channel(870204389166563329)
+        await channel.send(f"----------\nnkevin-modmail: \n`{error}`\n\n`{ctx.guild.id}` <@602569683543130113>")
 
 
 
