@@ -124,7 +124,31 @@ async def check1():
             await channel2.send(embed=embed,components=[actRow])
             await asyncio.sleep(5)
 
+@bot.command()
+async def lb(ctx):
 
+    allowed = [602569683543130113,365906052677500928,250567840417972225,718631090574721064]
+
+    if ctx.author.id not in allowed:
+        return
+
+    h = await db.get_all_hot_posted()
+    r = await db.get_all_rising_posted()
+    d=dict()
+    for i in h+r:
+        if len(i) == 4 and i[2]:
+            if not d.get(i[2]):
+                d[i[2]] = 0
+            d[i[2]] += 1
+    d = {k: v for k, v in sorted(d.items(), key=lambda item: item[1])}
+    d2=""
+    for i in reversed(list(d.keys())):
+        d2 = d2 + f"<@{i}>" + ": " + str(d[i]) + "\n"
+    embed = discord.Embed(
+        title = "Top actions leaderboard",
+        description = d2
+    )
+    await ctx.send(embed=embed)
 
 @tasks.loop()
 async def check2():
@@ -239,9 +263,7 @@ async def on_command_error(ctx,error):
     elif isinstance(error, aiohttp.client_exceptions.ClientOSError):
         os.execv(sys.executable, ['python'] + sys.argv)
     else:
-        channel = client.get_channel(870204389166563329)
-        await channel.send(f"----------\nnkevin-modmail: \n`{error}`\n\n`{ctx.guild.id}` <@602569683543130113>")
-
+        print(error)
 
 
 

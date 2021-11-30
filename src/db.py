@@ -33,13 +33,48 @@ async def get_hot_posted():
     connection = pool.getconn()
     if connection:
         cursor = connection.cursor()
-        cursor.execute("SELECT postid FROM reddit_posted.hot")
+        cursor.execute("SELECT * FROM reddit_posted.hot")
         records = cursor.fetchall()
         cursor.close()
         pool.putconn(connection)
         records2=[]
         for i in records:
             records2.append(i[0])
+        return records2
+    else:
+        print("Cant connect")
+        raise "ConnectionError"
+
+
+async def get_all_rising_posted():
+    connection = pool.getconn()
+    if connection:
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM reddit_posted.rising")
+        records = cursor.fetchall()
+        cursor.close()
+        pool.putconn(connection)
+        records2=[]
+        for i in records:
+            records2.append(i)
+        return records2
+    else:
+        print("Cant connect")
+        raise "ConnectionError"
+
+
+
+async def get_all_hot_posted():
+    connection = pool.getconn()
+    if connection:
+        cursor = connection.cursor()
+        cursor.execute("SELECT postid FROM reddit_posted.hot")
+        records = cursor.fetchall()
+        cursor.close()
+        pool.putconn(connection)
+        records2=[]
+        for i in records:
+            records2.append(i)
         return records2
     else:
         print("Cant connect")
