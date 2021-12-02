@@ -8,6 +8,7 @@ import reddit
 import asyncio
 import db
 import os,sys,aiohttp
+from datetime import datetime
 
 f= open("config.json","r")
 settings = json.load(f)
@@ -24,6 +25,7 @@ async def on_ready():
     if not settings.get("refresh_token",None):
         await reddit.get_link()
     else:
+        await db.date_check()
         check1.start()
         if int(settings['shadow_channel']) != 0:
             check2.start()
@@ -125,7 +127,7 @@ async def check1():
             await asyncio.sleep(5)
 
 @bot.command()
-async def lb(ctx):
+async def lb(ctx,date = None):
 
     allowed = [602569683543130113,365906052677500928,250567840417972225,718631090574721064]
 
@@ -135,11 +137,27 @@ async def lb(ctx):
     h = await db.get_all_hot_posted()
     r = await db.get_all_rising_posted()
     d=dict()
-    for i in h+r:
-        if len(i) == 4 and i[2]:
-            if not d.get(i[2]):
-                d[i[2]] = 0
-            d[i[2]] += 1
+    if not date:
+        for i in h+r:
+            if len(i) == 5 and i[2]:
+                if not d.get(i[2]):
+                    d[i[2]] = 0
+                d[i[2]] += 1
+    else:
+        try:
+            date = date.replace("-","/")
+            if len(date.split("/")[-1]) == 2:
+                date = date.split("/")[0] + "/" + date.split("/")[1] + "/20" + date.split("/")[-1]
+            t = datetime.timestamp(datetime.strptime(date,"%d/%m/%Y"))
+        except Exception as e:
+            return await ctx.send("Invalid date!")
+        if not t:
+            return await ctx.send("Invalid date!")
+        for i in h+r:
+            if len(i) == 5 and i[2] and i[4] and (float(i[4]) > t):
+                if not d.get(i[2]):
+                    d[i[2]] = 0
+                d[i[2]] += 1
     d = {k: v for k, v in sorted(d.items(), key=lambda item: item[1])}
     d2=""
     for i in reversed(list(d.keys())):
