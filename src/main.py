@@ -9,6 +9,9 @@ import asyncio
 import db
 import os,sys,aiohttp
 from datetime import datetime
+import logging
+
+
 
 f= open("config.json","r")
 settings = json.load(f)
@@ -17,6 +20,14 @@ f.close()
 bot = commands.Bot(command_prefix=">")
 
 slash = SlashCommand(bot,sync_commands=True)
+
+
+
+logging.basicConfig(level=logging.WARNING)
+logger = logging.getLogger('reddit_disc')
+handler = logging.FileHandler(filename='reddit_disc.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 
 
@@ -34,6 +45,10 @@ async def on_ready():
         if int(settings['modlog_channel']) != 0:
             check4.start()
     print("bot has started")
+    logger = logging.getLogger('reddit_disc')
+    logger.setLevel(logging.INFO)
+    logger.info("Started bot")
+    logger.setLevel(logging.WARNING)
 
 
 @tasks.loop(seconds=25*10)
@@ -254,8 +269,15 @@ async def check3():
 
 @bot.command(aliases=['r'])
 async def restart(ctx):
+    
+    u = bot.get_user(602569683543130113)
+    if not u:
+        u = await bot.fetch_user(602569683543130113)
+    if u:
+        await u.send(file=discord.File("reddit_disc.log"))
     await ctx.reply("Restarting...")
     os.execv(sys.executable, ['python'] + sys.argv)
+
 
 
 @tasks.loop()
@@ -263,6 +285,12 @@ async def check4():
     channel = bot.get_channel(int(settings['modlog_channel']))
     async for post in reddit.modlog_stream():
         await channel.send(embed=post)
+
+
+@bot.command(aliases=['log'])
+async def logs(ctx):
+    if ctx.author.id in [365906052677500928,602569683543130113,718631090574721064,694914425412649021,357918459058978816]:
+        await ctx.send(file=discord.File("reddit_disc.log"))
 
 
 
@@ -279,9 +307,15 @@ async def on_command_error(ctx,error):
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(f'You\'re on {str(error.cooldown.type).split(".")[-1]} cooldown for this command. Try again in {round(error.retry_after)} seconds.')
     elif isinstance(error, aiohttp.client_exceptions.ClientOSError):
+        u = bot.get_user(602569683543130113)
+        if not u:
+            u = await bot.fetch_user(602569683543130113)
+        if u:
+            await u.send(file=discord.File("reddit_disc.log"))
         os.execv(sys.executable, ['python'] + sys.argv)
     else:
-        print(error)
+        logger = logging.getLogger('reddit_disc')
+        logger.error(error,exc_info=True)
 
 
 
