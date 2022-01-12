@@ -168,6 +168,7 @@ async def lb(ctx,date = None):
             return await ctx.send("Invalid date!")
         if not t:
             return await ctx.send("Invalid date!")
+
         for i in h+r:
             if len(i) == 5 and i[2] and i[4] and (float(i[4]) > t):
                 if not d.get(i[2]):
@@ -326,9 +327,9 @@ async def on_component(ctx):
     await ctx.defer(ignore=True)
     username = ctx.origin_message.embeds[0].title.split("u/")[-1].split(" ")[0]
     postid = ctx.origin_message.embeds[0].url.strip("/").split("/")[-1]
-    if ctx.channel_id == settings['rising_channel']:
+    if str(ctx.channel_id) == str(settings['rising_channel']):
         await db.mod_rising_post(ctx.author_id,ctx.component['label'],postid)
-    elif ctx.channel.id == settings['hot_channel']:
+    elif str(ctx.channel_id) == str(settings['hot_channel']):
         await db.mod_hot_post(ctx.author_id,ctx.component['label'],postid)
     if ctx.custom_id == "approve":
         result = await reddit.approve(postid)

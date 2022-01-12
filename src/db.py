@@ -83,7 +83,7 @@ async def get_all_hot_posted():
     connection = pool.getconn()
     if connection:
         cursor = connection.cursor()
-        cursor.execute("SELECT postid FROM reddit_posted.hot")
+        cursor.execute("SELECT * FROM reddit_posted.hot")
         records = cursor.fetchall()
         cursor.close()
         pool.putconn(connection)
@@ -138,6 +138,7 @@ async def mod_rising_post(modid, action, pid):
 
 async def mod_hot_post(modid, action, pid):
     connection = pool.getconn()
+    
     if connection:
         cursor = connection.cursor()
         cursor.execute("UPDATE reddit_posted.hot SET mod_id = %s, action = %s, actiondate = %s WHERE postid = %s",(modid,action,time.time(),pid))
