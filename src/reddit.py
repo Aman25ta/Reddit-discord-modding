@@ -53,7 +53,7 @@ async def latest_rising_posts():
         elif i.score >= 400:
             await db.insert_rising_post((i.id,i.author.name))
             fu=None
-            if not i.link_flair_text and len(i.author_flair_richtext)!=0:
+            if i.author_flair_richtext and len(i.author_flair_richtext)!=0:
                   fu = i.author_flair_richtext[0].get('u',None)
             return_list.append({
                 "username": i.author.name,
@@ -79,7 +79,7 @@ async def latest_hot_posts():
         else:
             await db.insert_hot_post((i.id,i.author.name))
             fu=None
-            if not i.link_flair_text and len(i.author_flair_richtext)!=0:
+            if i.author_flair_richtext and len(i.author_flair_richtext)!=0:
                   fu = i.author_flair_richtext[0].get('u',None)
             return_list.append({
                 "username": i.author.name,
@@ -123,6 +123,53 @@ async def unmoderated_stream():
                 embed = discord.Embed(title=f"New comment by u/{post.author.name}",url="https://reddit.com"+post.permalink,description=post.body)
                 yield [embed,'c']
 
+
+
+
+
+
+async def last1k():
+    #new posts stream
+    #check for flair, then check post history
+    subreddit = await reddit.subreddit(settings.get("subreddit"))
+    async for i in subreddit.stream.submissions(skip_existing=True):
+        if i.author_flair_richtext and len(i.author_flair_richtext)!=0:
+            fu = i.author_flair_richtext
+            userhas=False
+            ok=False
+            if fu:
+                for j in fu:
+                    if j.get('a',None) == ":gooduser:":
+                        userhas=True
+                        break
+            if userhas:
+                continue
+            else:
+                await i.author.load()
+                listupv=[]
+                async for k in i.author.submissions.top():
+                    if len(listupv) == 5:
+                        break
+                    if 1000 - sum(listupv) > i.score and len(listupv) == 4:
+                        break
+                    if str(k.subreddit).lower() == settings.get("subreddit").lower():
+                        listupv.append(k.score)
+                if sum(listupv) >= 1000:
+                    ok = True
+                    counter=0
+                    async for k in i.author.comments.new(limit=None):
+
+                        if str(k.subreddit).lower() == settings.get("subreddit").lower():
+                            counter+=1
+                        if counter==50:
+                            break
+                    if counter < 50:
+                        ok = False
+                if ok:
+                    await subreddit.flair.set(
+                        redditor=username,
+                        text=":gooduser:"
+                    )
 
 
 

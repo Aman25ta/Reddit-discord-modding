@@ -44,11 +44,17 @@ async def on_ready():
             check3.start()
         if int(settings['modlog_channel']) != 0:
             check4.start()
+        check5.start()
     print("bot has started")
     logger = logging.getLogger('reddit_disc')
     logger.setLevel(logging.INFO)
     logger.info("Started bot")
     logger.setLevel(logging.WARNING)
+    
+
+@tasks.loop()
+async def check5():
+    await reddit.last1k()
 
 
 @tasks.loop(seconds=25*10)
