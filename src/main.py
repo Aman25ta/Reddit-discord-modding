@@ -30,6 +30,10 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 
+def handler(type, value, tb):
+    logger.exception("Uncaught exception: {0}".format(str(value)))
+
+sys.excepthook = handler
 
 @bot.event
 async def on_ready():

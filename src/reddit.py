@@ -137,9 +137,11 @@ async def last1k():
             fu = i.author_flair_richtext
             userhas=False
             ok=False
+            flairs = ''
             if fu:
                 for j in fu:
-                    if j.get('a',None) == ":gooduser:":
+                    flairs = flairs + j.get('a','')
+                    if ":gooduser:" in j.get('a',None):
                         userhas=True
                         break
             if userhas:
@@ -147,18 +149,18 @@ async def last1k():
             else:
                 await i.author.load()
                 listupv=[]
-                async for k in i.author.submissions.top():
+                async for k in i.author.submissions.top(limit=1000):
                     if len(listupv) == 5:
                         break
                     if 1000 - sum(listupv) > i.score and len(listupv) == 4:
                         break
+
                     if str(k.subreddit).lower() == settings.get("subreddit").lower():
                         listupv.append(k.score)
                 if sum(listupv) >= 1000:
                     ok = True
                     counter=0
                     async for k in i.author.comments.new(limit=None):
-
                         if str(k.subreddit).lower() == settings.get("subreddit").lower():
                             counter+=1
                         if counter==50:
@@ -167,10 +169,9 @@ async def last1k():
                         ok = False
                 if ok:
                     await subreddit.flair.set(
-                        redditor=username,
-                        text=":gooduser:"
+                        redditor=i.author.name,
+                        text=f"{flairs} :gooduser:"
                     )
-
 
 
 async def modlog_stream():
