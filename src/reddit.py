@@ -160,7 +160,7 @@ async def last1k():
                 if sum(listupv) >= 1000:
                     ok = True
                     counter=0
-                    async for k in i.author.comments.new(limit=None):
+                    async for k in i.author.comments.new(limit=1000):
                         if str(k.subreddit).lower() == settings.get("subreddit").lower():
                             counter+=1
                         if counter==50:
