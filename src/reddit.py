@@ -104,19 +104,19 @@ async def unmoderated_stream():
                     embed = discord.Embed(
                         description=post.title,
                         title= f"New post by u/{post.author.name}",
-                        url=f"https://reddit.com/{post.id}/"
+                        url=f"https://reddit.com/{post.permalink}/"
                     ).set_image(url=url)
                 elif post.is_self:
                     embed = discord.Embed(
                         description=post.title,
-                        url=f"https://reddit.com/{post.id}/",
+                        url=f"https://reddit.com/{post.permalink}/",
                         title= f"New post by u/{post.author.name}\n\n{post.selftext}"
                     )
                 else:
                     embed = discord.Embed(
                         description=post.title,
                         title= f"New post by u/{post.author.name}",
-                        url=f"https://reddit.com/{post.id}/"
+                        url=f"https://reddit.com/{post.permalink}/"
                     )
                 yield [embed,'p']
             if type(post) == asyncpraw.models.Comment:

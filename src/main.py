@@ -93,14 +93,14 @@ async def check1():
         for i in rising:
             embed = discord.Embed(
                 title=f"Post by u/{i['username']} has reached rising",
-                url=f"https://reddit.com/{i['id']}",
+                url=f"https://www.reddit.com/r/{settings['subreddit']}/comments/{i['id']}",
                 color=0x00FF00
             ).add_field(
                 name="Rising post",
-                value=f"[Post link](https://reddit.com/{i['id']})"
+                value=f"[Post link](https://www.reddit.com/r/{settings['subreddit']}/comments/{i['id']})"
             ).add_field(
                 name="User",
-                value=f"[u/{i['username']}](https://reddit.com/u/{i['username']})"
+                value=f"[u/{i['username']}](https://www.reddit.com/u/{i['username']})"
             ).add_field(
                 name="Score",
                 value=f"Post score = {i['score']}"
@@ -126,14 +126,14 @@ async def check1():
         for i in hot:
             embed = discord.Embed(
                 title=f"Post by u/{i['username']} has reached hot",
-                url=f"https://reddit.com/{i['id']}",
+                url=f"https://www.reddit.com/r/{settings['subreddit']}/comments/{i['id']}",
                 color=0x00FF00
             ).add_field(
                 name="Hot post",
-                value=f"[Post link](https://reddit.com/{i['id']})"
+                value=f"[Post link](https://www.reddit.com/r/{settings['subreddit']}/comments/{i['id']})"
             ).add_field(
                 name="User",
-                value=f"[u/{i['username']}](https://reddit.com/u/{i['username']})"
+                value=f"[u/{i['username']}](https://www.reddit.com/u/{i['username']})"
             ).add_field(
                 name="Score",
                 value=f"Post score = {i['score']}"
