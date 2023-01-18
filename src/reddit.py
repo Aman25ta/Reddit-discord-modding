@@ -104,23 +104,23 @@ async def unmoderated_stream():
                     embed = discord.Embed(
                         description=post.title,
                         title= f"New post by u/{post.author.name}",
-                        url=f"https://reddit.com/{post.permalink}/"
+                        url=f"https://www.reddit.com/r/{settings.get('subreddit')}/comments/{post.id}"
                     ).set_image(url=url)
                 elif post.is_self:
                     embed = discord.Embed(
                         description=post.title,
-                        url=f"https://reddit.com/{post.permalink}/",
+                        url=f"https://www.reddit.com/r/{settings.get('subreddit')}/comments/{post.id}"
                         title= f"New post by u/{post.author.name}\n\n{post.selftext}"
                     )
                 else:
                     embed = discord.Embed(
                         description=post.title,
                         title= f"New post by u/{post.author.name}",
-                        url=f"https://reddit.com/{post.permalink}/"
+                        url=f"https://www.reddit.com/r/{settings.get('subreddit')}/comments/{post.id}"
                     )
                 yield [embed,'p']
             if type(post) == asyncpraw.models.Comment:
-                embed = discord.Embed(title=f"New comment by u/{post.author.name}",url="https://reddit.com"+post.permalink,description=post.body)
+                embed = discord.Embed(title=f"New comment by u/{post.author.name}",url=f"https://www.reddit.com/r/{settings.get('subreddit')}/comments/{post.id}",description=post.body)
                 yield [embed,'c']
 
 
@@ -203,7 +203,7 @@ async def report_stream():
         if len(report) > 3500:
             report = report[0:3500] + "..."
         if type(post) == asyncpraw.models.Comment:
-            embed = discord.Embed(title=f"New comment by u/{post.author.name}",url="https://reddit.com"+post.permalink,description=post.body)
+            embed = discord.Embed(title=f"New comment by u/{post.author.name}",url=f"https://www.reddit.com/r/{settings.get('subreddit')}/comments/{post.id}",description=post.body)
             yield [embed.add_field(name="Reports",value=report),'c']
 
 
