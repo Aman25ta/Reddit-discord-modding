@@ -1,4 +1,5 @@
-asyncpraw==7.4.0
-psycopg2==2.9.1
-discord_py_slash_command==3.0.1
 discord==1.7.3
+asyncpraw==7.4.0
+psycopg2-binary==2.9.1
+discord_py_slash_command==3.0.1
+
