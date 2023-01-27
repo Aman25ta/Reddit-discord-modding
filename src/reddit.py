@@ -3,7 +3,7 @@ import asyncpraw
 import db
 import discord
 
-f= open("/config/config.json","r")
+f= open("config.json","r")
 settings = json.load(f)
 f.close()
 
@@ -33,10 +33,10 @@ async def get_link():
 
         ref_token=await reddit.auth.authorize(url.split("...&code=")[-1].strip("#_"))
 
-        with open('/config/config.json','r') as cfg:
+        with open('config.json','r') as cfg:
             data=json.load(cfg)
         data['refresh_token']=ref_token
-        with open('/config/config.json','w') as cfg:
+        with open('config.json','w') as cfg:
             data=json.dump(data,cfg,indent=2)
         os.execv(sys.executable,['python']+sys.argv)
 

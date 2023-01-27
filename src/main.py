@@ -13,7 +13,7 @@ import logging
 
 
 
-f= open("/config/config.json","r")
+f= open("config.json","r")
 settings = json.load(f)
 f.close()
 

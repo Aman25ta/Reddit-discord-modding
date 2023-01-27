@@ -2,7 +2,7 @@ from psycopg2 import pool
 import json
 import time
 
-f= open("/config/config.json","r")  
+f= open("config.json","r")  
 settings = json.load(f)
 f.close()
 
